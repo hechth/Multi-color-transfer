@@ -18,6 +18,9 @@
 #define FRAMES_WIDTH	9
 #define TOOLBAR_HEIGHT	30
 
+#define CM_ID_START		1
+#define CM_ID_INVALID	0
+
 #define TESTING
 
 #ifdef TESTING

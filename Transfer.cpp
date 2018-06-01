@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include "methods/Reinhard/CT_Reinhard.h"
 #include "methods/Xiao/CT_Xiao.h"
+#include <windows.h>
 
 #pragma warning(disable: 4244 4267 4996)
 
@@ -160,7 +161,7 @@ ColorMachine::ColorMachine(std::string name)
 		_source.tb_params[i].tb_name = tb_names[i];
 		_source.tb_params[i].cmachine = this;
 	}
-	_next_id = 1;
+	_next_id = CM_ID_START;
 }
 ColorMachine::~ColorMachine()
 {
@@ -202,7 +203,10 @@ unsigned ColorMachine::AddLayer(cv::Mat layer, std::string name)
 }
 unsigned ColorMachine::AddLayer(std::string file_name)
 {
-	return AddLayer(cv::imread(file_name), file_name);
+	auto img = cv::imread(file_name);
+	if (!img.cols)
+		return CM_ID_INVALID;
+	return AddLayer(img, file_name);
 }
 img_trans* ColorMachine::GetLayer(unsigned layer_id)
 {
@@ -299,10 +303,10 @@ std::string CreateRandomName(unsigned num_chars, std::string prefix, std::string
 		num_chars = RANDOM_NAME_MAX_CHARS;
 	unsigned u_rand;
 	char rand_chunk[RANDOM_CHUNK_SIZE + 1];
-	for(; num_chars; num_chars -= cv::min<unsigned>(num_chars, RANDOM_CHUNK_SIZE))
+	for(; num_chars; num_chars -= cv::min<int>(num_chars, RANDOM_CHUNK_SIZE))
 	{
 		rand_s(&u_rand);
-		itoa(u_rand % (unsigned)pow(10, cv::min<unsigned>(num_chars, RANDOM_CHUNK_SIZE)), rand_chunk, 10);
+		itoa(u_rand % (unsigned)pow(10, cv::min<int>(num_chars, RANDOM_CHUNK_SIZE)), rand_chunk, 10);
 		new_name += rand_chunk;
 	}
 	new_name += postfix;
@@ -316,8 +320,9 @@ void CreateWindowIT(img_trans* it, int width, int height, cv::String& wnd_name)
 	imshow(wnd_name, it->img);
 	for(unsigned i = 0; i < TB_COUNT; i++)
 	{
-		int init_val = it->channel_w[i];
-		createTrackbar(it->tb_params[i].tb_name, wnd_name, &init_val, MAX_WEIGHT_VAL, OnTrackBarChanged, &it->tb_params[i]); 
+		//int* init_val = new int(it->channel_w[i]); // init_val MUST be VALID when changing trackbar position
+		createTrackbar(it->tb_params[i].tb_name, wnd_name, nullptr, MAX_WEIGHT_VAL, OnTrackBarChanged, &it->tb_params[i]);
+		setTrackbarPos(it->tb_params[i].tb_name, wnd_name, it->channel_w[i]);
 	}
 }
 void GetWindowsSize(int* width, int* height, unsigned count)

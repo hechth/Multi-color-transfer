@@ -13,19 +13,17 @@ using namespace cv;
 #ifdef VIDEO
 	// SET YOUR VIDEO
 	#define SOURCE_VIDEO "../Time-lapse.flv"
-	#define SAVE_VIDEO 
-#ifdef SAVE_VIDEO
-	#define OUTPUT_FILE	"colored.avi"
-#endif
+	//#define SAVE_VIDEO 
+	#ifdef SAVE_VIDEO
+		#define OUTPUT_FILE	"colored.avi"
+	#endif
 #else
 	#define SOURCE_PIC "source/1.jpg"
 #endif
-
 std::vector<std::string> images = {
 									"images/1.jpg",
-									"images/2.jpg",
-									"images/3.jpg",
-									"images/4.jpg",
+									"images/6.png",
+									"images/7.jpg",
 									};
 
 int main()
@@ -49,8 +47,8 @@ int main()
 			resize(frame, frame, Size(0, 0), 0.5f, 0.5f); // video was too big
 		}
 		cmachine.SetSource(frame);
-		cmachine.ShowWindows(true); // will work only first time
 		cmachine.Prepare(method); // first time for all, then only for source
+		cmachine.ShowWindows(true); // will work only first time
 		Mat colored = cmachine.TransferColor();
 #ifdef SAVE_VIDEO
 		if (!writer.isOpened())
@@ -84,7 +82,7 @@ int main()
 		cmachine.ShowWindows(true);
 		cmachine.Prepare(method);
 		cmachine.TransferColor();
-		int key = waitKey(0);
+		int key = waitKey(0); //
 		if(key == 49)
 		{
 			cmachine.SetMethod(METHOD_REINHARD);
